@@ -6,14 +6,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    timeout-minutes: 720 # เพิ่มเวลาสำหรับ build ใหญ่
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install git aria2 ccache python3 openjdk-11-jdk -y
+          sudo apt install -y git aria2 ccache python3 openjdk-11-jdk \
+          bc bison build-essential curl flex libncurses5-dev libssl-dev \
+          unzip zip zlib1g-dev
 
       - name: Install repo tool
         run: |
@@ -22,28 +25,36 @@ jobs:
           chmod a+x ~/bin/repo
           echo "PATH=$HOME/bin:$PATH" >> $GITHUB_ENV
 
-      - name: Install repo tool
+      - name: Prepare local manifest
         run: |
-          mkdir -p $GITHUB_WORKSPACE/miku-ui/.repo/local_manifests
-          cp $GITHUB_WORKSPACE/.repo/local_manifests/roomservice.xml $GITHUB_WORKSPACE/miku-ui/.repo/local_manifests/
+          mkdir -p $GITHUB_WORKSPACE/.repo/local_manifests
+          cp $GITHUB_WORKSPACE/roomservice.xml $GITHUB_WORKSPACE/.repo/local_manifests/
 
       - name: Init repo
         run: |
-          mkdir miku-ui && cd miku-ui
+          mkdir -p miku-ui
+          cd miku-ui
           repo init -u https://github.com/Miku-UI/manifesto.git -b Blooming
-          mkdir -p .repo/local_manifests
-          cp $GITHUB_WORKSPACE/.repo/local_manifests/roomservice.xml miku-ui/.repo/local_manifests/
+          cp $GITHUB_WORKSPACE/.repo/local_manifests/roomservice.xml .repo/local_manifests/
 
       - name: Sync source
         run: |
           cd miku-ui
           repo sync -c --force-sync --no-clone-bundle --no-tags -j4
 
-      - name: Build ROM
+      - name: Setup build environment
         run: |
           cd miku-ui
           source build/envsetup.sh
+
+      - name: Lunch target
+        run: |
+          cd miku-ui
           lunch lineage_Pacman-userdebug
+
+      - name: Build ROM
+        run: |
+          cd miku-ui
           make bacon -j$(nproc --all)
 
       - name: Upload ROM
