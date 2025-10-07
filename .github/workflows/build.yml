@@ -27,7 +27,8 @@ jobs:
           mkdir miku-ui && cd miku-ui
           repo init -u https://github.com/Miku-UI/manifesto.git -b Blooming
           mkdir -p .repo/local_manifests
-          cp $GITHUB_WORKSPACE/roomservice.xml miku-ui/.repo/local_manifests/
+          cp $GITHUB_WORKSPACE/.repo/local_manifests/roomservice.xml miku-ui/.repo/local_manifests/
+
 
       - name: Sync source
         run: |
