@@ -25,7 +25,7 @@ jobs:
       - name: Init repo
         run: |
           mkdir miku-ui && cd miku-ui
-          repo init -u https://github.com/Miku-UI/manifesto.git -b blooming
+          repo init -u https://github.com/Miku-UI/manifesto.git -b Blooming
           mkdir -p .repo/local_manifests
           cp ../roomservice.xml .repo/local_manifests/
 
