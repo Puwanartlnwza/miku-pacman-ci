@@ -24,7 +24,7 @@
 
         <!-- Vendor Blobs -->
         <project name="nothing-2a/proprietary_vendor_nothing_Pacman"
-                 path="vendor/nothing/pacman"
+                 path="vendor/nothing/Aerodactyl"
                  remote="gitlab"
                  revision="lineage-23.0" />
 
