@@ -1,0 +1,41 @@
+name: Build Miku-UI for Pacman
+
+on:
+  workflow_dispatch: # กดปุ่ม run เองจาก Actions tab
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install git aria2 ccache python3 openjdk-11-jdk -y
+
+      - name: Init repo
+        run: |
+          mkdir miku-ui && cd miku-ui
+          repo init -u https://github.com/Miku-UI/manifesto.git -b blooming
+          mkdir -p .repo/local_manifests
+          cp ../roomservice.xml .repo/local_manifests/
+
+      - name: Sync source
+        run: |
+          cd miku-ui
+          repo sync -c --force-sync --no-clone-bundle --no-tags -j4
+
+      - name: Build ROM
+        run: |
+          cd miku-ui
+          source build/envsetup.sh
+          lunch lineage_Pacman-userdebug
+          make bacon -j$(nproc --all)
+
+      - name: Upload ROM
+        uses: actions/upload-artifact@v3
+        with:
+          name: Miku-UI-Pacman
+          path: miku-ui/out/target/product/*/*.zip
